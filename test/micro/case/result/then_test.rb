@@ -371,4 +371,35 @@ class Micro::Case::Result::ThenTest < Minitest::Test
       assert_equal(expected_transition, result4_transitions[index])
     end
   end
+
+  class DoSomething < Micro::Case
+    attributes :a, :b
+
+    def call!
+      validate_attributes
+        .then(-> { sum_a_and_b })
+        .then(-> data { add(data, number: 3) })
+    end
+
+    private
+
+      def validate_attributes
+        if Kind.of?(Numeric, a, b)
+          Success :valid_attributes
+        else
+          Failure :invalid_attributes
+        end
+      end
+
+      def sum_a_and_b
+        Success result: { sum: a + b }
+      end
+
+      def add(data, number:)
+        Success result: { sum: data[:sum] + number }
+      end
+  end
+
+  def test_then_method_without_an_arg
+  end
 end
